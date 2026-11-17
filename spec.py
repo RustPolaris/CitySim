@@ -45,6 +45,13 @@ class Good(BaseModel):
     food_units: float = Field(default=1.0, gt=0)         # food goods: pop-months of food per unit
     notes: str = ""
 
+    @field_validator("kind", mode="before")
+    @classmethod
+    def _kind(cls, v):
+        allowed = ("food", "raw", "reserve", "intermediate", "capital", "consumer", "service")
+        v = str(v).strip().lower()
+        return v if v in allowed else "intermediate"     # unknown labels from small models become plain goods
+
     @field_validator("food_units", mode="before")
     @classmethod
     def _food_units(cls, v):
