@@ -1,0 +1,4 @@
+__pycache__/
+cities/*/logs/
+cities/*/history.json
+cities/*/report*.md

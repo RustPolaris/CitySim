@@ -1,0 +1,358 @@
+{
+ "goods": [
+  {
+   "id": "repair_work",
+   "name": "Repair work",
+   "kind": "service",
+   "unit": "work-units"
+  },
+  {
+   "id": "haulage",
+   "name": "Haulage",
+   "kind": "service",
+   "unit": "load-units"
+  },
+  {
+   "id": "standing_timber",
+   "name": "Standing timber",
+   "kind": "reserve",
+   "unit": "m3",
+   "initial_stock": 221443,
+   "regen_per_month": 767.67,
+   "regen_cap": 221443
+  },
+  {
+   "id": "timber",
+   "name": "Timber",
+   "kind": "intermediate",
+   "unit": "m3",
+   "initial_stock": 1107,
+   "depreciation_rate": 0.003
+  },
+  {
+   "id": "ore_reserve",
+   "name": "Iron ore in the ground",
+   "kind": "reserve",
+   "unit": "t",
+   "initial_stock": 113562
+  },
+  {
+   "id": "ore",
+   "name": "Iron ore",
+   "kind": "intermediate",
+   "unit": "t",
+   "initial_stock": 129
+  },
+  {
+   "id": "stone_reserve",
+   "name": "Quarry stone in the ground",
+   "kind": "reserve",
+   "unit": "m3",
+   "initial_stock": 12953
+  },
+  {
+   "id": "stone",
+   "name": "Cut stone",
+   "kind": "intermediate",
+   "unit": "m3",
+   "initial_stock": 3
+  },
+  {
+   "id": "fuel",
+   "name": "Charcoal",
+   "kind": "intermediate",
+   "unit": "t",
+   "initial_stock": 696,
+   "depreciation_rate": 0.005
+  },
+  {
+   "id": "iron",
+   "name": "Iron",
+   "kind": "intermediate",
+   "unit": "t",
+   "initial_stock": 63
+  },
+  {
+   "id": "tools",
+   "name": "Tools and machinery",
+   "kind": "capital",
+   "unit": "sets",
+   "initial_stock": 3217,
+   "depreciation_rate": 0.012
+  },
+  {
+   "id": "buildings",
+   "name": "Workshops, barns and mills",
+   "kind": "capital",
+   "unit": "units",
+   "initial_stock": 752,
+   "depreciation_rate": 0.004
+  },
+  {
+   "id": "soil_fertility",
+   "name": "Soil fertility",
+   "kind": "reserve",
+   "unit": "fertility-units",
+   "initial_stock": 300000,
+   "regen_per_month": 2472,
+   "regen_cap": 300000
+  },
+  {
+   "id": "grain",
+   "name": "Grain and root crops",
+   "kind": "intermediate",
+   "unit": "t",
+   "initial_stock": 20782,
+   "depreciation_rate": 0.01
+  },
+  {
+   "id": "fibre",
+   "name": "Wool, hides and flax",
+   "kind": "intermediate",
+   "unit": "t",
+   "initial_stock": 0
+  },
+  {
+   "id": "food",
+   "name": "Food",
+   "kind": "food",
+   "unit": "pop-months"
+  },
+  {
+   "id": "clothing",
+   "name": "Clothing",
+   "kind": "consumer",
+   "unit": "garments",
+   "initial_stock": 734
+  }
+ ],
+ "sectors": [
+  {
+   "id": "maintenance",
+   "name": "Maintenance",
+   "order": 1,
+   "labour_share": 0.04,
+   "outputs": {
+    "repair_work": 0.55335
+   },
+   "inputs": {
+    "fuel": 0.05,
+    "timber": 0.05
+   },
+   "capital": {
+    "tools": 0.3,
+    "buildings": 0.1
+   }
+  },
+  {
+   "id": "transport",
+   "name": "Transport",
+   "order": 2,
+   "labour_share": 0.05,
+   "outputs": {
+    "haulage": 1.0098
+   },
+   "inputs": {
+    "fuel": 0.1,
+    "repair_work": 0.02
+   },
+   "capital": {
+    "tools": 0.3,
+    "buildings": 0.1
+   }
+  },
+  {
+   "id": "forestry",
+   "name": "Forestry",
+   "order": 3,
+   "labour_share": 0.05,
+   "outputs": {
+    "timber": 2.11091
+   },
+   "inputs": {
+    "repair_work": 0.03,
+    "haulage": 0.05,
+    "standing_timber": 2.11091
+   },
+   "capital": {
+    "tools": 0.5,
+    "buildings": 0.1
+   }
+  },
+  {
+   "id": "mining",
+   "name": "Mining",
+   "order": 4,
+   "labour_share": 0.04,
+   "outputs": {
+    "ore": 0.30754,
+    "stone": 0.00772
+   },
+   "inputs": {
+    "repair_work": 0.05,
+    "haulage": 0.1,
+    "stone_reserve": 0.00772,
+    "ore_reserve": 0.30754
+   },
+   "capital": {
+    "tools": 0.6,
+    "buildings": 0.1
+   }
+  },
+  {
+   "id": "energy",
+   "name": "Energy",
+   "order": 5,
+   "labour_share": 0.04,
+   "outputs": {
+    "fuel": 1.24376
+   },
+   "inputs": {
+    "repair_work": 0.03,
+    "haulage": 0.1,
+    "timber": 2.48751
+   },
+   "capital": {
+    "tools": 0.3,
+    "buildings": 0.1
+   }
+  },
+  {
+   "id": "metallurgy",
+   "name": "Metallurgy",
+   "order": 6,
+   "labour_share": 0.04,
+   "outputs": {
+    "iron": 0.15075
+   },
+   "inputs": {
+    "repair_work": 0.03,
+    "ore": 0.30151,
+    "fuel": 0.22613
+   },
+   "capital": {
+    "tools": 0.4,
+    "buildings": 0.1
+   }
+  },
+  {
+   "id": "tools",
+   "name": "Tools",
+   "order": 7,
+   "labour_share": 0.05,
+   "outputs": {
+    "tools": 0.11824
+   },
+   "inputs": {
+    "repair_work": 0.03,
+    "iron": 0.11824,
+    "fuel": 0.09459,
+    "timber": 0.03547
+   },
+   "capital": {
+    "tools": 0.4,
+    "buildings": 0.1
+   }
+  },
+  {
+   "id": "crops",
+   "name": "Crops",
+   "order": 8,
+   "labour_share": 0.38,
+   "outputs": {
+    "grain": 5.21323
+   },
+   "inputs": {
+    "repair_work": 0.02,
+    "haulage": 0.05,
+    "soil_fertility": 1.0
+   },
+   "capital": {
+    "tools": 0.6,
+    "buildings": 0.1
+   }
+  },
+  {
+   "id": "livestock",
+   "name": "Livestock",
+   "order": 9,
+   "labour_share": 0.1,
+   "outputs": {
+    "fibre": 0.32133,
+    "food": 1.6
+   },
+   "inputs": {
+    "grain": 0.8,
+    "haulage": 0.05
+   },
+   "capital": {
+    "tools": 0.3,
+    "buildings": 0.15
+   }
+  },
+  {
+   "id": "processing",
+   "name": "Processing",
+   "order": 10,
+   "labour_share": 0.1,
+   "outputs": {
+    "food": 16.75964
+   },
+   "inputs": {
+    "fuel": 0.25,
+    "repair_work": 0.03,
+    "haulage": 0.1,
+    "grain": 18.62183
+   },
+   "capital": {
+    "tools": 0.4,
+    "buildings": 0.15
+   }
+  },
+  {
+   "id": "textiles",
+   "name": "Textiles",
+   "order": 11,
+   "labour_share": 0.06,
+   "outputs": {
+    "clothing": 0.58339
+   },
+   "inputs": {
+    "repair_work": 0.02,
+    "fuel": 0.05,
+    "fibre": 0.52505
+   },
+   "capital": {
+    "tools": 0.3,
+    "buildings": 0.1
+   }
+  },
+  {
+   "id": "construction",
+   "name": "Construction",
+   "order": 12,
+   "labour_share": 0.05,
+   "outputs": {
+    "buildings": 0.01009
+   },
+   "inputs": {
+    "repair_work": 0.03,
+    "haulage": 0.1,
+    "stone": 0.00605,
+    "timber": 0.00404
+   },
+   "capital": {
+    "tools": 0.4,
+    "buildings": 0.05
+   }
+  }
+ ],
+ "population_consumption": {
+  "clothing": 0.02
+ },
+ "assumptions": [
+  "Demo seed economy: coefficients are per worker-month at full capacity.",
+  "Food and services cannot be stored; everything else wears or spoils at the stated rates.",
+  "Labour shares are fixed over time."
+ ]
+}

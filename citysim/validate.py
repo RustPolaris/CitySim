@@ -1,0 +1,53 @@
+"""Executable validation: gaps + ledger conservation + invalid-state checks over a test run.
+
+    python -m citysim.validate cities/demo_ford [--years 20]
+Prints a JSON report; exit code 1 if there are errors.
+"""
+from __future__ import annotations
+import argparse, json, sys, traceback
+from pathlib import Path
+
+from .analysis import find_gaps
+from .simulation import Simulation
+from .spec import CitySpec, EconomySpec
+
+
+def load_city(path: str | Path) -> tuple[CitySpec, EconomySpec]:
+    p = Path(path)
+    return (CitySpec.model_validate_json((p / "city.json").read_text()),
+            EconomySpec.model_validate_json((p / "economy.json").read_text()))
+
+
+def run_validation(path: str | Path, years: int = 20) -> dict:
+    report: dict = {"errors": [], "warnings": [], "gaps": []}
+    try:
+        city, econ = load_city(path)
+    except Exception as e:                      # schema problems
+        report["errors"].append(f"spec failed to load: {e}")
+        return report
+    gaps = find_gaps(econ)
+    report["gaps"] = gaps
+    report["errors"] += [g["message"] for g in gaps if g["severity"] == "error"]
+    report["warnings"] += [g["message"] for g in gaps if g["severity"] == "warning"]
+    try:
+        sim = Simulation(city, econ, strict=True)
+        sim.skip_years(years)
+        report["simulated_months"] = sim.months
+        report["population_after"] = sim.population
+        report["outcome"] = sim.outcome
+        report["last_utilization"] = {k: round(v["utilization"], 3) for k, v in sim.last.step.sector_status.items()} if sim.last else {}
+    except Exception as e:
+        report["errors"].append(f"simulation run failed: {e}")
+        report["traceback"] = traceback.format_exc(limit=4)
+    report["ok"] = not report["errors"]
+    return report
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("city_dir")
+    ap.add_argument("--years", type=int, default=20)
+    a = ap.parse_args()
+    r = run_validation(a.city_dir, a.years)
+    print(json.dumps(r, indent=1))
+    sys.exit(0 if r["ok"] else 1)
