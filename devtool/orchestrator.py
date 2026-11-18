@@ -11,6 +11,7 @@ from pathlib import Path
 
 from citysim.analysis import find_gaps
 from citysim.docgen import build_city_doc
+from citysim.seeding import seed_initial_stocks
 from citysim.spec import CitySpec, EconomySpec
 from citysim.validate import load_city
 from .llm import extract_json
@@ -200,6 +201,9 @@ class Orchestrator:
         snap = self.snapshot(f"round{n:02d}")
         try:
             spec, requests, notes = self.concept_step(n, self.rounds, city, prev, feedback)
+            seeded = seed_initial_stocks(spec, city)
+            if seeded:
+                notes += " | automatic starting stocks: " + "; ".join(seeded)
             (self.dir / "rounds" / f"{n:02d}_economy.json").write_text(spec.model_dump_json(indent=1))
             code_notes = self.code_step(spec, requests)
         except RoundFailed as e:

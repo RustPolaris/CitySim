@@ -1,7 +1,8 @@
 """Structured specifications: the stable interface between conceptual model, coder model and engine."""
 from __future__ import annotations
 from typing import Literal
-from pydantic import BaseModel, Field, model_validator
+import json
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 GoodKind = Literal["food", "raw", "reserve", "intermediate", "capital", "consumer", "service"]
 
@@ -18,6 +19,19 @@ class CitySpec(BaseModel):
     climate_and_resources: str = ""
     assumptions: list[str] = []
 
+    @field_validator("technology_level", "geography", "history", "climate_and_resources", mode="before")
+    @classmethod
+    def _text(cls, v):
+        # small models sometimes return an object or list instead of a string
+        return v if isinstance(v, str) or v is None else json.dumps(v, ensure_ascii=False)
+
+    @field_validator("assumptions", mode="before")
+    @classmethod
+    def _assumptions(cls, v):
+        if isinstance(v, str):
+            return [v]
+        return [x if isinstance(x, str) else json.dumps(x, ensure_ascii=False) for x in (v or [])]
+
 
 class Good(BaseModel):
     id: str
@@ -30,6 +44,24 @@ class Good(BaseModel):
     depreciation_rate: float = Field(default=0.0, ge=0, le=1)  # fraction of stock lost per month
     food_units: float = Field(default=1.0, gt=0)         # food goods: pop-months of food per unit
     notes: str = ""
+
+    @field_validator("kind", mode="before")
+    @classmethod
+    def _kind(cls, v):
+        allowed = ("food", "raw", "reserve", "intermediate", "capital", "consumer", "service")
+        v = str(v).strip().lower()
+        return v if v in allowed else "intermediate"     # unknown labels from small models become plain goods
+
+    @field_validator("food_units", mode="before")
+    @classmethod
+    def _food_units(cls, v):
+        # models fill every field; 0 or null means "not applicable", so fall back to the default of 1
+        return 1.0 if v is None or v <= 0 else v
+
+    @field_validator("regen_cap", mode="before")
+    @classmethod
+    def _regen_cap(cls, v):
+        return None if v is None or v <= 0 else v     # 0 would silently block regeneration; treat as "no ceiling"
 
     @property
     def stockable(self) -> bool:
@@ -71,8 +103,13 @@ class EconomySpec(BaseModel):
         for g in self.population_consumption:
             if g not in known:
                 raise ValueError(f"population_consumption references unknown good {g}")
-        if self.sectors and abs(sum(s.labour_share for s in self.sectors) - 1.0) > 0.005:
-            raise ValueError("sector labour shares must sum to 1.0")
+        total = sum(s.labour_share for s in self.sectors)
+        if self.sectors:
+            if total <= 0:
+                raise ValueError("sector labour shares must be positive")
+            if abs(total - 1.0) > 1e-9:                 # models are poor at arithmetic: renormalise to exactly 1.0
+                for s in self.sectors:
+                    s.labour_share = s.labour_share / total
         food = {g.id for g in self.goods if g.kind == "food"}
         if not food:
             raise ValueError("the economy needs at least one food good")

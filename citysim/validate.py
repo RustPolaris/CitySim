@@ -31,10 +31,21 @@ def run_validation(path: str | Path, years: int = 20) -> dict:
     report["warnings"] += [g["message"] for g in gaps if g["severity"] == "warning"]
     try:
         sim = Simulation(city, econ, strict=True)
+        first = sim.tick()
+        cover = first.food_available / first.population_open
+        if cover < 0.5:
+            weak = [f"{sid} at {st['utilization']:.0%} limited by {st['limiting']}"
+                    for sid, st in first.step.sector_status.items() if st["utilization"] < 0.5]
+            report["errors"].append(
+                f"the economy is not viable at the start: in month 1 food covers only {cover:.0%} of the population. "
+                f"Sectors below half capacity: {'; '.join(weak[:8]) or 'none (food sectors simply produce too little)'}")
         sim.skip_years(years)
         report["simulated_months"] = sim.months
         report["population_after"] = sim.population
         report["outcome"] = sim.outcome
+        if sim.outcome == "collapse" and sim.final_date[0] - city.start_year < years:
+            report["errors"].append(f"the city collapsed in year {sim.final_date[0]}, within the {years}-year test run; "
+                                    "the economy is not coherent enough to sustain it")
         report["last_utilization"] = {k: round(v["utilization"], 3) for k, v in sim.last.step.sector_status.items()} if sim.last else {}
     except Exception as e:
         report["errors"].append(f"simulation run failed: {e}")
