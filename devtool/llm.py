@@ -14,7 +14,7 @@ DEFAULT_MODELS = {
     "analysis": "qwen2.5:7b-instruct",
     "docs": "qwen2.5:7b-instruct",
     "report": "qwen2.5:7b-instruct",
-    "coder": "qwen2.5-coder:7b-instruct",
+    "coder": "mymodel",
 }
 JSON_ROLES = {"concept", "analysis", "coder"}     # replies that must be a JSON object
 
