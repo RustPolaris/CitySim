@@ -11,6 +11,7 @@ from pathlib import Path
 
 from citysim.analysis import find_gaps
 from citysim.docgen import build_city_doc
+from citysim.reproduction import calibrate, format_feedback
 from citysim.seeding import seed_initial_stocks
 from citysim.spec import CitySpec, EconomySpec
 from citysim.validate import load_city
@@ -20,6 +21,7 @@ from . import prompts
 ALLOWED_WRITE = ("citysim/economy/", "citysim/spec.py", "tests/generated/")
 SNAPSHOT_PATHS = ("citysim/economy", "citysim/spec.py", "tests/generated")
 REPAIR_KINDS = {"few_sectors", "orphan_output"}
+REPRO_ATTEMPTS = 3     # concept-model tries per round to deliver an economy that reproduces itself (after calibration)
 
 
 class RoundFailed(Exception):
@@ -200,7 +202,19 @@ class Orchestrator:
     def run_round(self, n: int, city: CitySpec, prev: EconomySpec | None, feedback: str = "") -> EconomySpec:
         snap = self.snapshot(f"round{n:02d}")
         try:
-            spec, requests, notes = self.concept_step(n, self.rounds, city, prev, feedback)
+            fb = feedback
+            for attempt in range(REPRO_ATTEMPTS):
+                spec, requests, notes = self.concept_step(n, self.rounds, city, prev, fb)
+                fixed, cal_notes, remaining = calibrate(spec, city)    # Option B: small, logged corrections by the tool
+                if not remaining:
+                    spec = fixed
+                    break
+                self.log(f"    economy not self-reproducing ({len(remaining)} imbalance(s)); asking the conceptual model to fix it")
+                fb = (feedback + "\n\n" if feedback else "") + format_feedback(remaining)
+            else:
+                raise RoundFailed("the economy cannot reproduce itself: " + "; ".join(p["message"] for p in remaining)[:500])
+            if cal_notes:
+                notes += " | automatic calibration: " + "; ".join(cal_notes)
             seeded = seed_initial_stocks(spec, city)
             if seeded:
                 notes += " | automatic starting stocks: " + "; ".join(seeded)

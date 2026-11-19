@@ -89,3 +89,56 @@ def test_failed_round_is_rolled_back(repo):
         orch.run_round(1, city, None)
     assert (repo / "citysim/economy/engine.py").read_text() == original
     assert (repo / "cities/t/rounds/01_FAILED.txt").exists()
+
+
+def _scaled_tools(factor):
+    econ = json.loads(json.dumps(DEMO_ECON))
+    for s in econ["sectors"]:
+        if "tools" in s["outputs"]:
+            s["outputs"]["tools"] *= factor
+    return econ
+
+
+class BrokenThenFixed(FakeLLM):
+    """First reply: tool output far too low (tenfold gap); after receiving feedback: the demo economy."""
+    def __init__(self, factor):
+        super().__init__()
+        self.factor, self.prompts = factor, []
+
+    def complete(self, role, system, prompt, max_tokens=8000):
+        if role == "concept" and "Invent a simple city" not in prompt:
+            self.prompts.append(prompt)
+            econ = DEMO_ECON if "cannot reproduce itself" in prompt else _scaled_tools(self.factor)
+            return json.dumps({"economy": econ, "notes": "x", "removals": [], "new_mechanics_requests": []})
+        return super().complete(role, system, prompt, max_tokens)
+
+
+def test_unreproducible_economy_goes_back_to_the_conceptual_model_with_numbers(repo):
+    llm = BrokenThenFixed(0.05)                             # too far off for the tool to correct it itself
+    orch = make(repo, llm, rounds=1)
+    city = orch.generate_city()
+    spec = orch.run_round(1, city, None)
+    assert len(llm.prompts) == 2 and "tools:" in llm.prompts[1] and "/month" in llm.prompts[1]
+    assert next(s for s in spec.sectors if s.id == "tools").outputs["tools"] == pytest.approx(0.11824)
+
+
+def test_small_imbalance_is_calibrated_by_the_tool_and_logged(repo):
+    llm = BrokenThenFixed(0.65)                             # within the tool's reach (wear rate and capacity)
+    orch = make(repo, llm, rounds=1)
+    city = orch.generate_city()
+    orch.run_round(1, city, None)
+    assert len(llm.prompts) == 1                            # no second attempt needed
+    assert "automatic calibration" in (repo / "cities/t/rounds/01_notes.md").read_text()
+
+
+def test_round_fails_and_rolls_back_when_the_economy_never_reproduces(repo):
+    class Hopeless(FakeLLM):
+        def complete(self, role, system, prompt, max_tokens=8000):
+            if role == "concept" and "Invent a simple city" not in prompt:
+                return json.dumps({"economy": _scaled_tools(0.02), "notes": "x", "removals": [], "new_mechanics_requests": []})
+            return super().complete(role, system, prompt, max_tokens)
+    orch = make(repo, Hopeless(), rounds=1)
+    city = orch.generate_city()
+    with pytest.raises(RoundFailed):
+        orch.run_round(1, city, None)
+    assert (repo / "cities/t/rounds/01_FAILED.txt").exists()

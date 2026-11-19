@@ -12,6 +12,11 @@ RULES = """Fixed rules of the simulation (do not contradict them):
   transport/trade, maintenance/services are the default list; adapt to the technological level).
 - Production coefficients are per worker-month at full capacity. Wealth cannot appear without inputs: every output
   needs inputs, means of production (capital stocks that wear out) or natural reserves/regeneration.
+- The starting economy must reproduce itself (the city has a history): at full employment, for every good the monthly
+  production must cover its monthly use as an input, the wear of the capital held in place (depreciation_rate x capital
+  required by the sectors, summed over sectors) and, for food, the population's needs. Example: if the sectors need 1000
+  tools in place and tools wear at 1%/month, the tool sector must make at least 10 tools per month. Never rely on
+  starting stocks to cover a permanent shortfall. Finite natural reserves are the only exception.
 - Do NOT model social actors, institutions, politics, ideology or classes: the prototype is economy-only.
 - Keep physical goods and units separate; never treat incommensurable quantities as interchangeable."""
 

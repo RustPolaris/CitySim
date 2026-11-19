@@ -40,15 +40,25 @@ class EconomyModel:
                 room = math.inf if g.regen_cap is None else max(0.0, g.regen_cap - self.stocks[g.id])
                 self._flow(ledger, "regeneration", g.id, min(g.regen_per_month, room))
 
-        # 2. production, sector by sector in processing order
+        # 2a. means of production in place are a SHARED stock: when a capital good is scarce, every sector that uses it
+        #     gets the same fraction of what it needs (proportional rationing). Capital is not consumed by use; it only
+        #     wears out (step 5). Without this, each sector would count the whole stock as its own.
+        capital_need: dict[str, float] = {}
+        for s in self.sectors:
+            workers = employed_labour * s.labour_share
+            for good, per_worker in s.capital.items():
+                capital_need[good] = capital_need.get(good, 0.0) + per_worker * workers
+        capital_available = {good: (min(1.0, self.stocks[good] / need) if need > 0 else 1.0)
+                             for good, need in capital_need.items()}
+
+        # 2b. production, sector by sector in processing order
         for s in self.sectors:
             workers = employed_labour * s.labour_share
             util, limiting = 1.0, None
             if workers > 0:
-                for good, per_worker in s.capital.items():       # means of production in place
-                    need = per_worker * workers
-                    if need > 0 and self.stocks[good] / need < util:
-                        util, limiting = self.stocks[good] / need, f"capital:{good}"
+                for good, per_worker in s.capital.items():       # means of production in place (shared, rationed)
+                    if per_worker * workers > 0 and capital_available[good] < util:
+                        util, limiting = capital_available[good], f"capital:{good}"
                 for good, per_worker in s.inputs.items():        # material inputs on hand
                     need = per_worker * workers
                     if need > 0 and self.stocks[good] / need < util:
