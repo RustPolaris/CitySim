@@ -21,7 +21,7 @@ Generate a new city (needs Ollama running locally):
 python -m devtool.build my_city --rounds 15 [--hint "a mountain mining town"]
 python -m citysim.cli cities/my_city
 ```
-Models (all local, via Ollama): `ollama pull qwen2.5:14b-instruct` (concept/analysis/docs/report) and
+Models (all local, via Ollama): `ollama pull qwen2.5:7b-instruct` (concept/analysis/docs/report) and
 `ollama pull qwen2.5-coder:7b-instruct` (coder). Override with `CITYSIM_MODEL_CONCEPT|CODER|ANALYSIS|DOCS|REPORT`,
 `CITYSIM_OLLAMA_URL` (e.g. the host's address when running in a VM), `CITYSIM_NUM_CTX`.
 
