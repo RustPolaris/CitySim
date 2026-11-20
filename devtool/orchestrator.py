@@ -6,7 +6,7 @@ Note: model-written code runs in a subprocess with a timeout; that is NOT a
 security sandbox. Run the tool inside a container or VM if you do not trust the model output.
 """
 from __future__ import annotations
-import json, os, shutil, subprocess, sys
+import json, os, shutil, subprocess, sys, time
 from pathlib import Path
 
 from citysim.analysis import find_gaps
@@ -28,13 +28,21 @@ class RoundFailed(Exception):
     pass
 
 
+def _fmt(seconds: float) -> str:
+    m, sec = divmod(int(seconds), 60)
+    h, m = divmod(m, 60)
+    return f"{h}:{m:02d}:{sec:02d}" if h else f"{m:02d}:{sec:02d}"
+
+
 class Orchestrator:
     def __init__(self, repo_root, slug, llm, rounds=15, max_repair_cycles=6, log=print, use_git=True,
                  code_attempts=3, validation_years=20):
         self.root = Path(repo_root)
         self.slug = slug
         self.dir = self.root / "cities" / slug
-        self.llm, self.rounds, self.max_repairs, self.log = llm, rounds, max_repair_cycles, log
+        self.llm, self.rounds, self.max_repairs = llm, rounds, max_repair_cycles
+        self._t0 = self._lap = time.monotonic()
+        self.log = lambda msg: log(f"[{_fmt(time.monotonic() - self._t0)}] {msg}")    # every line carries the total elapsed time
         self.code_attempts, self.validation_years = code_attempts, validation_years
         for sub in ("rounds", "logs"):
             (self.dir / sub).mkdir(parents=True, exist_ok=True)
@@ -44,6 +52,12 @@ class Orchestrator:
         self.decisions: list[str] = []
 
     # ------------------------------------------------------------ helpers
+    def done(self, label: str):
+        """Log how long the stage that just ended took (the line prefix shows the total)."""
+        now = time.monotonic()
+        self.log(f"{label} done in {_fmt(now - self._lap)}")
+        self._lap = now
+
     def _git(self, *args) -> str:
         try:
             r = subprocess.run(["git", "-c", "user.name=citysim", "-c", "user.email=citysim@localhost", *args],
@@ -172,7 +186,8 @@ class Orchestrator:
                     raise ValueError(f"ids removed without being listed in 'removals': {sorted(gone)}")
             return spec, list(obj.get("new_mechanics_requests", [])), str(obj.get("notes", ""))
         prev_json = prev.model_dump_json(indent=1) if prev else "null"
-        prompt = prompts.concept_prompt(n, total, city.model_dump_json(indent=1), prev_json, "\n".join(self.decisions[-12:]), feedback)
+        prompt = prompts.concept_prompt(n, total, city.model_dump_json(indent=1), prev_json, "\n".join(self.decisions[-12:]), feedback,
+                                       prompts.scale_anchors(city))
         return self._ask_json("concept", prompts.CONCEPT_SYSTEM, prompt, check)
 
     def code_step(self, spec: EconomySpec, requests: list[str]) -> str:
@@ -236,7 +251,9 @@ class Orchestrator:
             self.log(f"Round {n}/{self.rounds}")
             try:
                 prev = self.run_round(n, city, prev)
+                self.done(f"Round {n}/{self.rounds}")
             except RoundFailed:
+                self.done(f"Round {n}/{self.rounds} (failed, rolled back)")
                 continue                      # state already rolled back; the next round starts from the last good economy
         if prev is None:
             raise RoundFailed("no construction round succeeded")
@@ -259,7 +276,9 @@ class Orchestrator:
             (self.dir / "rounds" / f"repair_{cycle:02d}_analysis.json").write_text(json.dumps(analysis, indent=1))
             try:
                 spec = self.run_round(100 + cycle, city, spec, feedback)
+                self.done(f"Repair cycle {cycle}")
             except RoundFailed:
+                self.done(f"Repair cycle {cycle} (failed, rolled back)")
                 continue
         self.log("Repair cycles exhausted; remaining problems are listed in logs/last_validation.json")
         return spec
@@ -277,11 +296,16 @@ class Orchestrator:
     def run(self, hint: str = ""):
         city = self.generate_city(hint)
         self.commit("city specification")
+        self.done("City generation")
         spec = self.construct(city)
         spec = self.repair_gaps(city, spec)
+        self.done("Gap repair")
         self.compile_docs(city, spec)
         self.commit("documentation")
+        self.done("Documentation")
         final = self.validate()
+        self.done("Final validation")
+        self.log(f"Total time {_fmt(time.monotonic() - self._t0)}")
         self.log("Final validation: " + ("OK" if not final["errors"] else "PROBLEMS: " + "; ".join(final["errors"][:3])))
         self.log(f"Launch the CLI with:  python -m citysim.cli cities/{self.slug}")
         return final

@@ -142,3 +142,14 @@ def test_round_fails_and_rolls_back_when_the_economy_never_reproduces(repo):
     with pytest.raises(RoundFailed):
         orch.run_round(1, city, None)
     assert (repo / "cities/t/rounds/01_FAILED.txt").exists()
+
+
+def test_every_log_line_has_elapsed_time_and_stages_report_their_duration(repo):
+    lines = []
+    orch = Orchestrator(repo, "t", FakeLLM(), rounds=1, max_repair_cycles=0, log=lines.append, use_git=False)
+    orch.run()
+    assert all(l.startswith("[") and "]" in l[:12] for l in lines)
+    text = "\n".join(lines)
+    for stage in ("City generation done in", "Round 1/1 done in", "Gap repair done in", "Documentation done in",
+                  "Final validation done in", "Total time"):
+        assert stage in text

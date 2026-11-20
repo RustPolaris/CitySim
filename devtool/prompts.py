@@ -32,7 +32,19 @@ labour_force_fraction (0-1), unemployed_share (0-1), start_year (integer), clima
 CONCEPT_SYSTEM = "You are the conceptual model of an economic-simulation design tool. Reply with one JSON object only.\n" + RULES
 
 
-def concept_prompt(n, total, city_json, prev_spec_json, decisions, feedback):
+def scale_anchors(city) -> str:
+    """Numbers computed by code so the model cannot confuse per-worker coefficients with sector totals."""
+    employed = city.population * city.labour_force_fraction * (1 - city.unemployed_share)
+    half = employed / 2
+    return (f"Scale of this city: population {city.population:,.0f}; employed workers {employed:,.0f}. A sector with "
+            f"labour_share s has employed x s workers. EVERY coefficient (outputs, inputs, capital) is per ONE worker, "
+            f"never a total for the sector. Reference: the population eats {city.population:,.0f} food per month; if the "
+            f"food sectors together held half of the workers ({half:,.0f}), each of them would have to yield about "
+            f"{city.population / half:.1f} food per month, so food outputs of dozens or hundreds per worker are wrong. "
+            "Capital in place is a few units per worker, not tens or hundreds. Only natural reserves may regenerate.")
+
+
+def concept_prompt(n, total, city_json, prev_spec_json, decisions, feedback, anchors=""):
     schema = json.dumps(EconomySpec.model_json_schema())
     first = prev_spec_json is None
     task = ("Describe the city's initial economic starting point: productive organization, principal sectors, available "
@@ -45,6 +57,8 @@ def concept_prompt(n, total, city_json, prev_spec_json, decisions, feedback):
 
 City specification:
 {city_json}
+
+{anchors}
 
 Current economy specification (null in round 1):
 {prev_spec_json}

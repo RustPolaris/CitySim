@@ -103,6 +103,13 @@ class EconomySpec(BaseModel):
         for g in self.population_consumption:
             if g not in known:
                 raise ValueError(f"population_consumption references unknown good {g}")
+        for g in self.goods:
+            if g.regen_per_month > 0 and g.kind != "reserve":
+                raise ValueError(f"good {g.id}: regen_per_month is only for natural reserves (kind 'reserve'); a produced "
+                                 "good such as tools or food must come from a sector's outputs, never from nothing")
+        for g in self.goods:                            # food is eaten under the fixed food rule, not as consumption
+            if g.kind == "food":
+                self.population_consumption.pop(g.id, None)
         total = sum(s.labour_share for s in self.sectors)
         if self.sectors:
             if total <= 0:

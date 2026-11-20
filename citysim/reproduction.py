@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from .spec import CitySpec, EconomySpec
 
 EPS = 1e-9
+MAX_SURPLUS = 5.0      # production above this multiple of what the economy uses is a units mistake, not an economy
 TARGET = 1.05          # calibration aims for a 5% margin so rounding cannot leave a good just below balance
 
 
@@ -39,7 +40,15 @@ class Balance:
     def short(self) -> bool:
         return self.demand > 0 and self.supply < self.demand * (1 - EPS)
 
+    @property
+    def excessive(self) -> bool:
+        return self.demand > 0 and self.supply > self.demand * MAX_SURPLUS
+
     def message(self) -> str:
+        if self.excessive:
+            return (f"{self.good}: full-capacity production is {self.supply / self.demand:.0f}x what the economy uses "
+                    f"({self.supply:.1f} against {self.demand:.1f} per month). Coefficients are per ONE worker-month, not "
+                    "totals for the sector; lower the output per worker (or raise what uses it)")
         if self.good == "food":
             return (f"food: full-capacity production is {self.supply:.1f} pop-months/month, minus {self.inputs:.1f} used as "
                     f"input by other sectors, but the population eats {self.eaten:.1f}")
@@ -87,7 +96,7 @@ def balances(spec: EconomySpec, city: CitySpec) -> list[Balance]:
 
 def reproduction_problems(spec: EconomySpec, city: CitySpec) -> list[dict]:
     problems = [{"severity": "error", "good": b.good, "supply": round(b.supply, 3), "demand": round(b.demand, 3),
-                 "message": b.message()} for b in balances(spec, city) if b.short]
+                 "message": b.message()} for b in balances(spec, city) if b.short or b.excessive]
     w = _workers(spec, city)
     for g in spec.goods:                                  # unmet consumption of the population is never lethal: warning
         want = spec.population_consumption.get(g.id, 0.0) * city.population
