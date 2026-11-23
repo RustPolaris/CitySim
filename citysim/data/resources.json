@@ -1,0 +1,414 @@
+{
+ "resources": [
+  {
+   "id": "fertile_soil",
+   "name": "fertile soil",
+   "kind": "renewable",
+   "base": 0.7,
+   "tags": [
+    "food_source",
+    "arable"
+   ],
+   "regeneration_ratio": [
+    0.5,
+    1.1
+   ],
+   "climate_mult": {
+    "hot_desert": 0.05,
+    "boreal": 0.35,
+    "steppe": 0.7,
+    "tropical_wet": 0.9
+   },
+   "terrain_mult": {
+    "floodplain": 1.6,
+    "delta": 1.6,
+    "plains": 1.3,
+    "upland_valley": 0.9,
+    "plateau": 0.7,
+    "mountain_foothills": 0.5,
+    "coastal_lowland": 1.1
+   },
+   "water_mult": {
+    "river": 1.4,
+    "lake": 1.1,
+    "marsh": 0.8,
+    "oasis": 8.0
+   },
+   "note": "regeneration_ratio: natural renewal of fertility as a share of the wear at the design level of farming"
+  },
+  {
+   "id": "pasture",
+   "name": "pasture and grazing land",
+   "kind": "renewable",
+   "base": 0.7,
+   "tags": [
+    "food_source",
+    "grazing"
+   ],
+   "regeneration_ratio": [
+    0.6,
+    1.2
+   ],
+   "climate_mult": {
+    "steppe": 1.6,
+    "hot_desert": 0.1,
+    "boreal": 0.5,
+    "tropical_wet": 0.6
+   },
+   "terrain_mult": {
+    "plains": 1.3,
+    "rolling_hills": 1.2,
+    "plateau": 1.2,
+    "upland_valley": 1.1,
+    "delta": 0.5,
+    "floodplain": 0.9
+   }
+  },
+  {
+   "id": "forest",
+   "name": "forest",
+   "kind": "renewable",
+   "base": 0.7,
+   "tags": [
+    "timber",
+    "fuel"
+   ],
+   "regeneration_ratio": [
+    0.4,
+    1.2
+   ],
+   "climate_mult": {
+    "boreal": 1.6,
+    "tropical_wet": 1.5,
+    "temperate_oceanic": 1.3,
+    "subtropical_humid": 1.3,
+    "steppe": 0.3,
+    "hot_desert": 0.05,
+    "mediterranean": 0.7
+   },
+   "terrain_mult": {
+    "rolling_hills": 1.2,
+    "upland_valley": 1.4,
+    "mountain_foothills": 1.4,
+    "plains": 0.7,
+    "floodplain": 0.8,
+    "delta": 0.4
+   }
+  },
+  {
+   "id": "freshwater_fish",
+   "name": "freshwater fish",
+   "kind": "renewable",
+   "base": 0.4,
+   "tags": [
+    "food_source",
+    "fishery"
+   ],
+   "regeneration_ratio": [
+    0.5,
+    1.3
+   ],
+   "climate_mult": {
+    "hot_desert": 0.2
+   },
+   "water_mult": {
+    "river": 2.0,
+    "lake": 2.5,
+    "marsh": 1.5,
+    "oasis": 1.0
+   },
+   "requires_water": [
+    "river",
+    "lake",
+    "marsh",
+    "oasis"
+   ]
+  },
+  {
+   "id": "sea_fish",
+   "name": "sea fish and shellfish",
+   "kind": "renewable",
+   "base": 0.2,
+   "tags": [
+    "food_source",
+    "fishery"
+   ],
+   "regeneration_ratio": [
+    0.5,
+    1.2
+   ],
+   "terrain_mult": {
+    "coastal_lowland": 2.0,
+    "delta": 2.5
+   },
+   "water_mult": {
+    "sea_coast": 4.0
+   },
+   "requires_water": [
+    "sea_coast"
+   ]
+  },
+  {
+   "id": "wild_game",
+   "name": "wild game",
+   "kind": "renewable",
+   "base": 0.5,
+   "tags": [
+    "food_source",
+    "hunting",
+    "hides"
+   ],
+   "regeneration_ratio": [
+    0.4,
+    1.0
+   ],
+   "climate_mult": {
+    "boreal": 1.4,
+    "hot_desert": 0.2
+   },
+   "terrain_mult": {
+    "plains": 1.1,
+    "rolling_hills": 1.2,
+    "upland_valley": 1.2,
+    "mountain_foothills": 1.1
+   }
+  },
+  {
+   "id": "fibre_plants",
+   "name": "fibre plants",
+   "kind": "renewable",
+   "base": 0.5,
+   "tags": [
+    "fibre"
+   ],
+   "regeneration_ratio": [
+    0.6,
+    1.2
+   ],
+   "climate_mult": {
+    "hot_desert": 0.1,
+    "steppe": 0.6,
+    "boreal": 0.3,
+    "subtropical_humid": 1.3,
+    "tropical_wet": 1.1,
+    "mediterranean": 1.1
+   },
+   "terrain_mult": {
+    "floodplain": 1.3,
+    "plains": 1.1
+   },
+   "note": "flax, hemp, cotton or similar, whichever the climate allows"
+  },
+  {
+   "id": "building_stone",
+   "name": "building stone",
+   "kind": "finite",
+   "base": 0.7,
+   "tags": [
+    "stone",
+    "construction"
+   ],
+   "reserve_years": [
+    200,
+    2000
+   ],
+   "terrain_mult": {
+    "mountain_foothills": 1.6,
+    "rolling_hills": 1.3,
+    "plateau": 1.2,
+    "upland_valley": 1.2,
+    "plains": 0.5,
+    "floodplain": 0.2,
+    "delta": 0.1
+   }
+  },
+  {
+   "id": "clay",
+   "name": "clay",
+   "kind": "finite",
+   "base": 0.7,
+   "tags": [
+    "clay",
+    "ceramics",
+    "construction"
+   ],
+   "reserve_years": [
+    300,
+    2000
+   ],
+   "terrain_mult": {
+    "floodplain": 1.5,
+    "delta": 1.5,
+    "plains": 1.1,
+    "rolling_hills": 0.8,
+    "mountain_foothills": 0.5
+   },
+   "water_mult": {
+    "river": 1.3,
+    "marsh": 1.3
+   }
+  },
+  {
+   "id": "salt",
+   "name": "salt",
+   "kind": "finite",
+   "base": 0.3,
+   "tags": [
+    "salt",
+    "preservative"
+   ],
+   "reserve_years": [
+    150,
+    1500
+   ],
+   "climate_mult": {
+    "hot_desert": 1.5,
+    "steppe": 1.2
+   },
+   "terrain_mult": {
+    "coastal_lowland": 1.5,
+    "delta": 1.2
+   },
+   "water_mult": {
+    "sea_coast": 2.5
+   }
+  },
+  {
+   "id": "iron_ore",
+   "name": "iron ore",
+   "kind": "finite",
+   "base": 0.35,
+   "tags": [
+    "ore",
+    "metal_iron"
+   ],
+   "reserve_years": [
+    80,
+    600
+   ],
+   "terrain_mult": {
+    "mountain_foothills": 2.0,
+    "rolling_hills": 1.5,
+    "upland_valley": 1.3,
+    "plateau": 1.2,
+    "coastal_lowland": 0.5,
+    "floodplain": 0.3,
+    "delta": 0.2
+   }
+  },
+  {
+   "id": "copper_ore",
+   "name": "copper ore",
+   "kind": "finite",
+   "base": 0.2,
+   "tags": [
+    "ore",
+    "metal_copper"
+   ],
+   "reserve_years": [
+    60,
+    400
+   ],
+   "terrain_mult": {
+    "mountain_foothills": 2.2,
+    "rolling_hills": 1.4,
+    "plateau": 1.2,
+    "upland_valley": 1.2,
+    "floodplain": 0.3,
+    "delta": 0.2
+   }
+  },
+  {
+   "id": "tin_ore",
+   "name": "tin ore",
+   "kind": "finite",
+   "base": 0.08,
+   "tags": [
+    "ore",
+    "metal_tin"
+   ],
+   "reserve_years": [
+    30,
+    250
+   ],
+   "terrain_mult": {
+    "mountain_foothills": 2.5,
+    "rolling_hills": 1.5,
+    "floodplain": 0.2,
+    "delta": 0.1
+   }
+  },
+  {
+   "id": "precious_ore",
+   "name": "gold and silver ore",
+   "kind": "finite",
+   "base": 0.08,
+   "tags": [
+    "ore",
+    "precious"
+   ],
+   "reserve_years": [
+    40,
+    300
+   ],
+   "terrain_mult": {
+    "mountain_foothills": 2.5,
+    "upland_valley": 1.5,
+    "plateau": 1.3,
+    "delta": 0.2
+   }
+  },
+  {
+   "id": "coal",
+   "name": "coal",
+   "kind": "finite",
+   "base": 0.2,
+   "tags": [
+    "fuel",
+    "mineral_fuel"
+   ],
+   "reserve_years": [
+    100,
+    800
+   ],
+   "climate_mult": {
+    "boreal": 1.2,
+    "hot_desert": 0.6
+   },
+   "terrain_mult": {
+    "rolling_hills": 1.5,
+    "mountain_foothills": 1.4,
+    "upland_valley": 1.3,
+    "plateau": 1.2,
+    "delta": 0.4
+   }
+  },
+  {
+   "id": "peat",
+   "name": "peat",
+   "kind": "finite",
+   "base": 0.2,
+   "tags": [
+    "fuel",
+    "mineral_fuel"
+   ],
+   "reserve_years": [
+    60,
+    500
+   ],
+   "climate_mult": {
+    "boreal": 2.0,
+    "temperate_oceanic": 2.0,
+    "hot_desert": 0.02,
+    "steppe": 0.3
+   },
+   "terrain_mult": {
+    "plateau": 1.2
+   },
+   "water_mult": {
+    "marsh": 3.0
+   },
+   "note": "peat forms far too slowly to count as renewable at the scale of a city's history"
+  }
+ ]
+}

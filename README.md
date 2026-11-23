@@ -12,7 +12,7 @@ A hand-built demo city (`cities/demo_ford`) ships so you can run everything with
 ## Quick start
 ```
 pip install -r requirements.txt
-python -m pytest -q                                  # 36 tests incl. the brief's 100-pop starvation example
+python -m pytest -q                                  # 54 tests incl. the brief's 100-pop starvation example
 python -m citysim.cli cities/demo_ford               # interactive (n = month, y = skip years, 1-7 = inspect, q = quit)
 python -m citysim.cli cities/demo_ford --run 1000    # headless, prints the outcome
 ```
@@ -57,3 +57,17 @@ Models (all local, via Ollama): `qwen2.5:7b-instruct` for concept/analysis/docs/
   the conceptual model with the numbers. `citysim/validate.py` also fails a run whose population drops below 80% of its
   start or that starves in the first five years.
 - Capital goods are a shared stock: when scarce, every sector using one gets the same fraction of what it needs.
+
+## Landscape sheet (brief v0.9, sections 13.3 to 13.5 and 14.9)
+- `citysim/landscape.py` draws the land a city is founded on, by code: climate, terrain, water, hazards and the resource
+  deposits present (renewable or finite, with tier, richness, `reserve_years` or `regeneration_ratio`). Deterministic:
+  every draw is keyed by seed, attempt, purpose and id, so the same seed gives the same sheet.
+- The tables are hand-written JSON in `citysim/data/` (`environment.json`, `resources.json`). Add entries to extend the
+  world; bad entries are rejected on load with the entry named.
+- Two layers: `landscape.json` / `landscape.md` (full) and `landscape_condensed.txt` (fixed field order, 600 characters).
+```
+python -m citysim.landscape 7 --name Valdemar --out cities/valdemar    # print and save a sheet
+python -m citysim.landscape 7 --climate hot_desert                     # force a climate (or --terrain)
+```
+- Not yet wired into the devtool or the engine; the sector table, generator and solver come next (brief 14.12).
+

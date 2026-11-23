@@ -1,0 +1,326 @@
+{
+ "climates": [
+  {
+   "id": "temperate_oceanic",
+   "name": "temperate oceanic",
+   "temperature": "mild",
+   "rainfall": "wet",
+   "weight": 1.0
+  },
+  {
+   "id": "temperate_continental",
+   "name": "temperate continental",
+   "temperature": "cool",
+   "rainfall": "moderate",
+   "weight": 1.2
+  },
+  {
+   "id": "mediterranean",
+   "name": "mediterranean",
+   "temperature": "warm",
+   "rainfall": "dry summers, mild wet winters",
+   "weight": 1.0
+  },
+  {
+   "id": "steppe",
+   "name": "semi-arid steppe",
+   "temperature": "cool",
+   "rainfall": "dry",
+   "weight": 0.8
+  },
+  {
+   "id": "hot_desert",
+   "name": "hot desert",
+   "temperature": "hot",
+   "rainfall": "arid",
+   "weight": 0.4
+  },
+  {
+   "id": "subtropical_humid",
+   "name": "humid subtropical",
+   "temperature": "warm",
+   "rainfall": "wet",
+   "weight": 0.8
+  },
+  {
+   "id": "tropical_wet",
+   "name": "wet tropical",
+   "temperature": "hot",
+   "rainfall": "very wet",
+   "weight": 0.6
+  },
+  {
+   "id": "tropical_savanna",
+   "name": "tropical savanna",
+   "temperature": "hot",
+   "rainfall": "seasonal",
+   "weight": 0.6
+  },
+  {
+   "id": "boreal",
+   "name": "boreal",
+   "temperature": "cold",
+   "rainfall": "moderate",
+   "weight": 0.6
+  }
+ ],
+ "terrains": [
+  {
+   "id": "floodplain",
+   "name": "river floodplain",
+   "weight": 1.0,
+   "climate_mult": {
+    "boreal": 0.3,
+    "hot_desert": 0.4
+   }
+  },
+  {
+   "id": "plains",
+   "name": "open plains",
+   "weight": 1.4
+  },
+  {
+   "id": "rolling_hills",
+   "name": "rolling hills",
+   "weight": 1.2
+  },
+  {
+   "id": "upland_valley",
+   "name": "upland valleys",
+   "weight": 0.9
+  },
+  {
+   "id": "mountain_foothills",
+   "name": "mountain foothills",
+   "weight": 0.9
+  },
+  {
+   "id": "plateau",
+   "name": "high plateau",
+   "weight": 0.6
+  },
+  {
+   "id": "coastal_lowland",
+   "name": "coastal lowland",
+   "weight": 0.9
+  },
+  {
+   "id": "delta",
+   "name": "river delta",
+   "weight": 0.4,
+   "climate_mult": {
+    "boreal": 0.1,
+    "steppe": 0.3,
+    "hot_desert": 0.3
+   }
+  }
+ ],
+ "water": [
+  {
+   "id": "river",
+   "name": "river",
+   "weight": 1.6,
+   "terrain_mult": {
+    "floodplain": 3.0,
+    "delta": 4.0,
+    "plateau": 0.5
+   },
+   "climate_mult": {
+    "hot_desert": 0.3
+   }
+  },
+  {
+   "id": "lake",
+   "name": "lake",
+   "weight": 0.6,
+   "climate_mult": {
+    "hot_desert": 0.1,
+    "steppe": 0.6
+   }
+  },
+  {
+   "id": "sea_coast",
+   "name": "sea coast",
+   "weight": 0.4,
+   "terrain_mult": {
+    "coastal_lowland": 8.0,
+    "delta": 8.0,
+    "plateau": 0.1,
+    "upland_valley": 0.1,
+    "mountain_foothills": 0.3
+   }
+  },
+  {
+   "id": "spring",
+   "name": "springs",
+   "weight": 0.8,
+   "terrain_mult": {
+    "mountain_foothills": 2.0,
+    "upland_valley": 1.5,
+    "rolling_hills": 1.3
+   },
+   "climate_mult": {
+    "hot_desert": 2.0,
+    "steppe": 1.5
+   }
+  },
+  {
+   "id": "marsh",
+   "name": "marsh",
+   "weight": 0.3,
+   "climate_mult": {
+    "hot_desert": 0.02,
+    "steppe": 0.2,
+    "boreal": 2.0,
+    "temperate_oceanic": 2.0
+   },
+   "terrain_mult": {
+    "floodplain": 2.0,
+    "delta": 3.0,
+    "coastal_lowland": 2.0,
+    "plateau": 0.1
+   }
+  },
+  {
+   "id": "oasis",
+   "name": "oasis",
+   "weight": 0.0,
+   "climate_mult": {
+    "hot_desert": 6.0,
+    "steppe": 1.5
+   }
+  }
+ ],
+ "hazards": [
+  {
+   "id": "drought",
+   "name": "drought",
+   "base": 0.35,
+   "climate_mult": {
+    "hot_desert": 2.2,
+    "steppe": 2.0,
+    "mediterranean": 1.8,
+    "tropical_savanna": 2.0,
+    "tropical_wet": 0.2,
+    "temperate_oceanic": 0.4,
+    "boreal": 0.4
+   },
+   "return_years": [
+    8,
+    60
+   ]
+  },
+  {
+   "id": "flood",
+   "name": "flooding",
+   "base": 0.25,
+   "terrain_mult": {
+    "floodplain": 3.0,
+    "delta": 3.5,
+    "mountain_foothills": 0.6,
+    "plateau": 0.2
+   },
+   "water_mult": {
+    "river": 2.0,
+    "marsh": 1.5,
+    "lake": 1.2
+   },
+   "climate_mult": {
+    "hot_desert": 0.2,
+    "tropical_wet": 1.8,
+    "subtropical_humid": 1.5
+   },
+   "return_years": [
+    5,
+    50
+   ]
+  },
+  {
+   "id": "harsh_winter",
+   "name": "harsh winters",
+   "base": 0.25,
+   "climate_mult": {
+    "boreal": 3.0,
+    "temperate_continental": 2.0,
+    "steppe": 1.5,
+    "hot_desert": 0.0,
+    "tropical_wet": 0.0,
+    "tropical_savanna": 0.0,
+    "subtropical_humid": 0.2,
+    "mediterranean": 0.3
+   },
+   "return_years": [
+    6,
+    40
+   ]
+  },
+  {
+   "id": "storm",
+   "name": "storms",
+   "base": 0.15,
+   "water_mult": {
+    "sea_coast": 3.0
+   },
+   "terrain_mult": {
+    "coastal_lowland": 1.8,
+    "delta": 1.8
+   },
+   "climate_mult": {
+    "tropical_wet": 2.0,
+    "subtropical_humid": 1.8
+   },
+   "return_years": [
+    10,
+    80
+   ]
+  },
+  {
+   "id": "earthquake",
+   "name": "earthquakes",
+   "base": 0.1,
+   "terrain_mult": {
+    "mountain_foothills": 3.0,
+    "upland_valley": 1.5,
+    "plateau": 1.3,
+    "delta": 0.5,
+    "plains": 0.4
+   },
+   "return_years": [
+    40,
+    300
+   ]
+  },
+  {
+   "id": "wildfire",
+   "name": "wildfires",
+   "base": 0.12,
+   "climate_mult": {
+    "mediterranean": 3.0,
+    "tropical_savanna": 2.0,
+    "boreal": 1.8,
+    "steppe": 1.5,
+    "tropical_wet": 0.3,
+    "hot_desert": 0.2
+   },
+   "return_years": [
+    10,
+    70
+   ]
+  },
+  {
+   "id": "crop_blight",
+   "name": "crop blight and pests",
+   "base": 0.2,
+   "climate_mult": {
+    "tropical_wet": 1.8,
+    "subtropical_humid": 1.5,
+    "hot_desert": 0.2,
+    "boreal": 0.5
+   },
+   "return_years": [
+    10,
+    80
+   ]
+  }
+ ]
+}
